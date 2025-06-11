@@ -49,7 +49,7 @@
     <h1>Random Grid Generator</h1>
     <button onclick="generateGrid()">Generate Images</button>
 
-    <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow OFF</button>
+    <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow ON</button>
 
     <div class="grid" id="imageGrid">
         <!-- Images will be generated here -->
@@ -99,14 +99,17 @@
     function rainbowOff() {
         const button = document.getElementById('rainbowToggleBtn');
 
-        rainbowEnabled = !rainbowEnabled; // Toggle state
+        // Check button text to determine current state
+        const isRainbowOff = button.textContent.trim() === "Rainbow OFF";
 
-        if (rainbowEnabled) {
-            odds = [20, 20, 20, 20, 20, 0]; // Turn RB1 off
-            button.textContent = "Rainbow OFF";
-        } else {
-            odds = [20, 20, 20, 20, 20, 5]; // Restore RB1
+        if (isRainbowOff) {
+            // Rainbow is OFF, turn it ON (allow RB1 again)
+            odds = [20, 20, 20, 20, 20, 5];
             button.textContent = "Rainbow ON";
+        } else {
+            // Rainbow is ON, turn it OFF (disallow RB1)
+            odds = [20, 20, 20, 20, 20, 0];
+            button.textContent = "Rainbow OFF";
         }
 
         // Recalculate total odds after update
