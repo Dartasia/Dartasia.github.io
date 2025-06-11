@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Image Grid</title>
     <style>
-         body {
+    body {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -16,36 +16,53 @@
         background-color: #f0f0f0;
         padding: 10px;
         box-sizing: border-box;
+        max-width: 100vw;
     }
 
     h1 {
         text-align: center;
-        font-size: 6vw;
+        font-size: clamp(16px, 6vw, 32px);
+        margin: 10px 0;
+        max-width: 90vw;
+        overflow-wrap: break-word;
+        text-wrap: balance;
     }
 
     button {
         padding: 10px 20px;
         margin: 10px 0;
-        font-size: clamp(10px, 4vw, 20px); /* Responsive font size */
+        font-size: clamp(10px, 4vw, 20px);
         cursor: pointer;
+        max-width: 90vw;
+        box-sizing: border-box;
+        white-space: nowrap; /* Prevent multi-line buttons */
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(5, 18vw); /* 5 columns of 18vw each = 90vw total */
-        grid-template-rows: repeat(3, 18vw);
-        gap: 2vw;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
+    width: min(100vw, 25vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
+    max-width: 75vw;
+    max-height: 75vh;
+    box-sizing: border-box;
     }
 
     .grid img {
         width: 100%;
         height: 100%;
         object-fit: contain;
+        display: block;
     }
     </style>
 </head>
 
-<body>
+<body onload="generateGrid()">
+
+    
     <h1>Random Grid Generator</h1>
     <button onclick="generateGrid()">Generate Images</button>
 
