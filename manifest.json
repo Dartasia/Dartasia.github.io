@@ -1,0 +1,21 @@
+{
+  "name": "Dartasia.42web.io",
+  "short_name": "Grid Generator",
+  "description": "A 5x3 grid generator.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#317EFB",
+  "icons": [
+    {
+      "src": "/Icons/Icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Icons/Icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

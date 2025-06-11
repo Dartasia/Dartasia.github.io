@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Image Grid</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
 
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 20px 0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+        }
+
+        .grid img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Random Grid Generator</h1>
+    <button onclick="generateGrid()">Generate Images</button>
+
+    <div class="grid" id="imageGrid">
+        <!-- Images will be generated here -->
+    </div>
+
+   <script>
+    const imageFilenames = ['B1', 'R1', 'G1', 'Y1', 'P1', 'RB1'];
+    const odds = [20, 20, 20, 20, 20, 5]; // Matching the given probabilities
+    const totalOdds = odds.reduce((acc, curr) => acc + curr, 0); //Sums of the total odds to make it work when generating icons.
+    const imagePath = 'Grid_Images/';
+    const maxRB1Count = 5; // Limit RB1 to appear 5 times
+
+    // Keep rb1Count outside the getRandomImage function so it persists
+    var rb1Count = 0;
+
+    function getRandomImage() {
+        const randomIndex = () => {
+            let random = Math.random() * totalOdds;
+            let sum = 0;
+
+            for (let i = 0; i < odds.length; i++) {
+                sum += odds[i];
+
+                // If RB1 is selected but already exceeded the allowed count, continue the loop
+                if (i === 5 && rb1Count >= maxRB1Count) continue;
+
+                if (random < sum) return i;
+            }
+            return 0; // Default case
+        };
+
+        // Generate a random image based on the given probabilities
+        let index = randomIndex();
+
+        // Increment RB1 count if selected
+        if (imageFilenames[index] === 'RB1') {
+            rb1Count++;
+        }
+
+        return imageFilenames[index];
+    }
+
+    function generateGrid() {
+        const gridElement = document.getElementById('imageGrid');
+        gridElement.innerHTML = ''; // Clear previous images
+
+        // Reset RB1 counter each time the grid is generated
+        rb1Count = 0;
+
+        // Generate 15 images for the 5x3 grid
+        for (let i = 0; i < 15; i++) {
+            const img = document.createElement('img');
+            const randomImage = getRandomImage();
+            img.src = imagePath + randomImage + '.png'; // Assumes all images are .png
+            img.alt = randomImage;
+            gridElement.appendChild(img);
+        }
+    }
+</script>
+
+</body>
+
+</html>
