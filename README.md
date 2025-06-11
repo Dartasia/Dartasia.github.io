@@ -1,5 +1,7 @@
 ## Hi there 👋
 
+Welcome to a very simple grid generator for a project of mine feel free to visit it on my github.io (it really isn't much but it's as start ^-^).
+
 <!--
 **Dartasia/Dartasia** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
