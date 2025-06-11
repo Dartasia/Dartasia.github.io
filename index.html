@@ -30,25 +30,45 @@
 
     button {
         padding: 10px 20px;
-        margin: 10px 0;
-        font-size: clamp(10px, 4vw, 20px);
+        margin: 5px 0;
+        font-size: clamp(8px, 4vw, 20px);
         cursor: pointer;
         max-width: 90vw;
         box-sizing: border-box;
-        white-space: nowrap; /* Prevent multi-line buttons */
+
+        white-space: nowrap;        /* Keep text on one line */
         overflow: hidden;
         text-overflow: ellipsis;
+
+        width: auto;                /* Let button size to content */
+        height: auto
+        ;
+        min-width: fit-content;     /* Ensure it doesn't shrink below text */
+        min-height: fit-content;
     }
 
     .grid {
         display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
-    width: min(100vw, 25vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
-    max-width: 75vw;
-    max-height: 75vh;
-    box-sizing: border-box;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
+        width: min(100vw, 25vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
+        max-width: 75vw;
+        max-height: 75vh;
+        box-sizing: border-box;
+    }
+
+    @media screen and (orientation: landscape) {
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
+            width: min(100vw, 50vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
+            max-width: 75vw;
+            max-height: 75vh;
+            box-sizing: border-box;
+        }
     }
 
     .grid img {
