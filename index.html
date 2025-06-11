@@ -95,6 +95,8 @@
     function rainbowOff() {
         const button = document.getElementById('rainbowToggleBtn');
 
+        rainbowEnabled = !rainbowEnabled; // Toggle state
+
         if (rainbowEnabled) {
             odds = [20, 20, 20, 20, 20, 0]; // Turn RB1 off
             button.textContent = "Rainbow OFF";
@@ -105,8 +107,6 @@
 
         // Recalculate total odds after update
         totalOdds = odds.reduce((acc, curr) => acc + curr, 0);
-
-        rainbowEnabled = !rainbowEnabled; // Toggle state
     }
 </script>
 
