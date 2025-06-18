@@ -209,7 +209,7 @@
         const newImg = img.cloneNode(true); // Clone the image (removes listeners)
         img.parentNode.replaceChild(newImg, img); // Replace old with new
 
-        newImg.addEventListener('click', () => {
+        newImg.addEventListener('pointerdown', () => {
             if (selectingMode) return; // Prevent swap if in Selection Mode
 
             if (!selectedImage) {
