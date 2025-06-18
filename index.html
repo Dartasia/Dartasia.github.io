@@ -145,7 +145,9 @@
     </div>
 
     <div class="grid" id="imageGrid">
-        <!-- Images will be generated here -->
+        <!-- These will be added by JS -->
+        <!-- Example: -->
+        <!-- <div class="tile"><img src="..." alt=""></div> -->
     </div>
 
    <script>
@@ -190,46 +192,73 @@
         selectedImage = null;
 
     for (let i = 0; i < 15; i++) {
+        const tile = document.createElement('div');
+        tile.classList.add('tile');
+
         const img = document.createElement('img');
         const randomImage = getRandomImage();
         img.src = imagePath + randomImage + '.png';
         img.alt = randomImage;
         img.classList.add('grid-item');
-        gridElement.appendChild(img);
+
+        tile.appendChild(img);
+        gridElement.appendChild(tile);
     }
 
-    attachGridEvents(); // Call to add click listeners
+    addTileEventListeners(); // Call to add click listeners
 
     }
 
-    function attachGridEvents() {
-    const gridItems = document.querySelectorAll('#imageGrid img');
+function addTileEventListeners() {
+    const tiles = document.querySelectorAll('.grid .tile');
 
-    gridItems.forEach(img => {
-        const newImg = img.cloneNode(true); // Clone the image (removes listeners)
-        img.parentNode.replaceChild(newImg, img); // Replace old with new
+    tiles.forEach(tile => {
+        const newTile = tile.cloneNode(true); // Clone to remove old listeners
+        tile.parentNode.replaceChild(newTile, tile); // Replace in DOM
 
-        newImg.addEventListener('pointerdown', () => {
-            if (selectingMode) return; // Prevent swap if in Selection Mode
+        newTile.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
 
+            // Get image from within the tile reliably
+            let img = newTile.querySelector('img');
+
+            // Sometimes tap targets the image directly, fallback
+            if (!img && event.target.tagName === 'IMG') {
+                img = event.target;
+            }
+
+            if (!img) return; // Still no img? Bail.
+
+            if (selectingMode) {
+                // Selecting tiles mode
+                if (selectedTiles.includes(newTile)) {
+                    newTile.classList.remove('selected');
+                    selectedTiles = selectedTiles.filter(t => t !== newTile);
+                } else {
+                    newTile.classList.add('selected');
+                    selectedTiles.push(newTile);
+                }
+                return;
+            }
+
+            // Default swapping logic
             if (!selectedImage) {
-                // First selection
-                selectedImage = newImg;
-                newImg.classList.add('selected');
-            } else if (selectedImage === newImg) {
-                // Deselect if clicked again
-                newImg.classList.remove('selected');
+                selectedImage = img;
+                img.classList.add('selected');
+            } else if (selectedImage === img) {
+                img.classList.remove('selected');
                 selectedImage = null;
             } else {
                 // Swap src and alt
                 const tempSrc = selectedImage.src;
                 const tempAlt = selectedImage.alt;
 
-                selectedImage.src = newImg.src;
-                selectedImage.alt = newImg.alt;
+                selectedImage.src = img.src;
+                selectedImage.alt = img.alt;
 
-                newImg.src = tempSrc;
-                newImg.alt = tempAlt;
+                img.src = tempSrc;
+                img.alt = tempAlt;
 
                 selectedImage.classList.remove('selected');
                 selectedImage = null;
