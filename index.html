@@ -28,9 +28,17 @@
         text-wrap: balance;
     }
 
+    .button-container {
+        display: flex;
+        flex-direction:row;
+        flex-wrap: wrap; /* allows wrapping if too tight */
+        justify-content: center;
+        gap: 5px; /* space between buttons */
+    }
+
     button {
-        padding: 10px 20px;
-        margin: 5px 0;
+        padding: 10svw, 10svw;
+        margin: 1svw 0;
         font-size: clamp(8px, 4vw, 20px);
         cursor: pointer;
         max-width: 90vw;
@@ -52,22 +60,56 @@
         grid-template-columns: repeat(5, 1fr);
         grid-template-rows: repeat(3, 1fr);
         aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
-        width: min(100vw, 25vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
+        width: min(100vw, 40vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
         max-width: 75vw;
         max-height: 75vh;
         box-sizing: border-box;
     }
 
-    @media screen and (orientation: landscape) {
+    .grid-item.selected {
+        outline: 3px solid #007bff;
+        outline-offset: -3px;
+        border-radius: 4px;
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
         .grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(3, 1fr);
             aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
-            width: min(100vw, 50vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
-            max-width: 75vw;
-            max-height: 75vh;
+            width: min(200vw, 70vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
+            max-width: 95vw;
+            max-height: 95vh;
             box-sizing: border-box;
+        }
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+        .button-container {
+        display: flex;
+        flex-direction:row;
+        flex-wrap: wrap; /* allows wrapping if too tight */
+        justify-content: center;
+        gap: 3px; /* space between buttons */
+    }
+        button {
+        padding: 5px 5px;
+        margin: 5px 0;
+        font-size: clamp(5px, 4vw, 15px);
+        cursor: pointer;
+        max-width: 90vw;
+        box-sizing: border-box;
+
+        white-space: nowrap;        /* Keep text on one line */
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        width: auto;                /* Let button size to content */
+        height: auto
+        ;
+        min-width: fit-content;     /* Ensure it doesn't shrink below text */
+        min-height: fit-content;
         }
     }
 
@@ -84,15 +126,23 @@
 
     
     <h1>Random Grid Generator</h1>
-    <button onclick="generateGrid()">Generate Images</button>
 
-    <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow ON</button>
+    <div class="button-container">
+        <button onclick="generateGrid()">Generate Images</button>
+
+        <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow ON</button>
+
+        <button onclick="selectTiles()">Select Tiles</button>
+
+        <button onclick="removeTiles()">Remove Selected Tiles</button>
+    </div>
 
     <div class="grid" id="imageGrid">
         <!-- Images will be generated here -->
     </div>
 
    <script>
+
     const imageFilenames = ['B1', 'R1', 'G1', 'Y1', 'P1', 'RB1'];
     let odds = [20, 20, 20, 20, 20, 5]; // Made `let` so we can change it
     const imagePath = 'Grid_Images/';
@@ -101,6 +151,12 @@
     let totalOdds = odds.reduce((acc, curr) => acc + curr, 0);
     var rb1Count = 0;
     let rainbowEnabled = true; // Track if rainbow is currently ON
+
+    let selectedImage = null; // To store the first selected image
+
+    // Values to store the Selecting Mode Active MOde and its Selection.
+    let selectingMode = false;
+    let selectedTiles = [];
 
     function getRandomImage() {
         const randomIndex = () => {
@@ -124,14 +180,56 @@
         const gridElement = document.getElementById('imageGrid');
         gridElement.innerHTML = '';
         rb1Count = 0;
-        for (let i = 0; i < 15; i++) {
-            const img = document.createElement('img');
-            const randomImage = getRandomImage();
-            img.src = imagePath + randomImage + '.png';
-            img.alt = randomImage;
-            gridElement.appendChild(img);
-        }
+        selectedImage = null;
+
+    for (let i = 0; i < 15; i++) {
+        const img = document.createElement('img');
+        const randomImage = getRandomImage();
+        img.src = imagePath + randomImage + '.png';
+        img.alt = randomImage;
+        img.classList.add('grid-item');
+        gridElement.appendChild(img);
     }
+
+    attachGridEvents(); // Call to add click listeners
+
+    }
+
+    function attachGridEvents() {
+    const gridItems = document.querySelectorAll('#imageGrid img');
+
+    gridItems.forEach(img => {
+        const newImg = img.cloneNode(true); // Clone the image (removes listeners)
+        img.parentNode.replaceChild(newImg, img); // Replace old with new
+
+        newImg.addEventListener('click', () => {
+            if (selectingMode) return; // Prevent swap if in Selection Mode
+
+            if (!selectedImage) {
+                // First selection
+                selectedImage = newImg;
+                newImg.classList.add('selected');
+            } else if (selectedImage === newImg) {
+                // Deselect if clicked again
+                newImg.classList.remove('selected');
+                selectedImage = null;
+            } else {
+                // Swap src and alt
+                const tempSrc = selectedImage.src;
+                const tempAlt = selectedImage.alt;
+
+                selectedImage.src = newImg.src;
+                selectedImage.alt = newImg.alt;
+
+                newImg.src = tempSrc;
+                newImg.alt = tempAlt;
+
+                selectedImage.classList.remove('selected');
+                selectedImage = null;
+            }
+        });
+    });
+}
 
     function rainbowOff() {
         const button = document.getElementById('rainbowToggleBtn');
@@ -152,6 +250,67 @@
         // Recalculate total odds after update
         totalOdds = odds.reduce((acc, curr) => acc + curr, 0);
     }
+
+    function selectTiles() {
+        const button = document.querySelector('button[onclick="selectTiles()"]');
+
+        // Toggle selection mode
+            selectingMode = !selectingMode;
+
+            // Clear previous selection and visual cues
+            selectedTiles.forEach(tile => tile.classList.remove('selected'));
+            selectedTiles = [];
+
+            if (selectingMode) {
+                button.textContent = "Cancel Selection";
+                enableTileSelection();
+            } else {
+                button.textContent = "Select Tiles";
+                disableTileSelection();
+            }
+    }
+
+function enableTileSelection() {
+    const gridItems = document.querySelectorAll('#imageGrid img');
+    gridItems.forEach(img => {
+        img.addEventListener('click', tileClickHandler);
+        img.classList.add('selectable');
+    });
+}
+
+function disableTileSelection() {
+    const gridItems = document.querySelectorAll('#imageGrid img');
+    gridItems.forEach(img => {
+        img.removeEventListener('click', tileClickHandler);
+        img.classList.remove('selected');
+        img.classList.remove('selectable');
+    });
+}
+
+function tileClickHandler(event) {
+    const img = event.target;
+
+    if (selectedTiles.includes(img)) {
+        img.classList.remove('selected');
+        selectedTiles = selectedTiles.filter(item => item !== img);
+    } else {
+        img.classList.add('selected');
+        selectedTiles.push(img);
+    }
+}
+
+function removeTiles() {
+    if (!selectingMode || selectedTiles.length === 0) return;
+
+    selectedTiles.forEach(tile => {
+        tile.src = imagePath + 'Empty.png';
+        tile.alt = 'Empty';
+        tile.classList.remove('selected');
+    });
+
+    selectedTiles = [];
+    selectTiles(); // Exits selection mode
+}
 </script>
 
 </body>
