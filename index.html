@@ -72,6 +72,12 @@
         border-radius: 4px;
     }
 
+    #colorSelector {
+        margin-top: 0px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
     @media screen and (max-width: 1024px) and (orientation: landscape) {
         .grid {
             display: grid;
@@ -150,6 +156,31 @@
         <!-- <div class="tile"><img src="..." alt=""></div> -->
     </div>
 
+<!--  SECTION HTML : Buttons to change selected tiles attributes. -->
+
+    <div class="button-container">
+        <!-- Hidden by default until tiles are selected -->
+        <button id="changeAttrBtn" style="display: none;">Change Attribute</button>
+        
+        <!-- Hidden color selector dropdown (appears after clicking "Change Attribute") -->
+        <div id="colorSelector" style="display: none">
+            <label for="attrSelect">Choose Attribute:</label>
+            <select id="attrSelect">
+            <option value="R1">Red</option>
+            <option value="B1">Blue</option>
+            <option value="G1">Green</option>
+            <option value="Y1">Yellow</option>
+            <option value="P1">Purple</option>
+            <option value="RB1">Rainbow</option>
+            </select>
+        </div>
+        
+        <!-- Hidden Confirm button (appears after selecting an attribute) -->
+        <button id="confirmBtn" style="display: none; margin-top: 10px;">Confirm</button>
+    </div>
+
+<!-- SCRIPT (JavaScript)-->
+
    <script>
 
     const imageFilenames = ['B1', 'R1', 'G1', 'Y1', 'P1', 'RB1'];
@@ -163,190 +194,326 @@
 
     let selectedImage = null; // To store the first selected image
 
-    // Values to store the Selecting Mode Active MOde and its Selection.
+    let selectedTileIds = new Set();  // Track selected tiles by unique ID
+
+    // Values to store the Selecting Mode Active Mode and its Selection.
     let selectingMode = false;
     let selectedTiles = [];
 
     function getRandomImage() {
-        const randomIndex = () => {
-            let random = Math.random() * totalOdds;
-            let sum = 0;
+            const randomIndex = () => {
+                let random = Math.random() * totalOdds;
+                let sum = 0;
 
-            for (let i = 0; i < odds.length; i++) {
-                sum += odds[i];
-                if (i === 5 && rb1Count >= maxRB1Count) continue;
-                if (random < sum) return i;
-            }
-            return 0;
-        };
-
-        let index = randomIndex();
-        if (imageFilenames[index] === 'RB1') rb1Count++;
-        return imageFilenames[index];
-    }
-
-    function generateGrid() {
-        const gridElement = document.getElementById('imageGrid');
-        gridElement.innerHTML = '';
-        rb1Count = 0;
-        selectedImage = null;
-
-    for (let i = 0; i < 15; i++) {
-        const tile = document.createElement('div');
-        tile.classList.add('tile');
-
-        const img = document.createElement('img');
-        const randomImage = getRandomImage();
-        img.src = imagePath + randomImage + '.png';
-        img.alt = randomImage;
-        img.classList.add('grid-item');
-
-        tile.appendChild(img);
-        gridElement.appendChild(tile);
-    }
-
-    addTileEventListeners(); // Call to add click listeners
-
-    }
-
-function addTileEventListeners() {
-    const tiles = document.querySelectorAll('.grid .tile');
-
-    tiles.forEach(tile => {
-        const newTile = tile.cloneNode(true); // Clone to remove old listeners
-        tile.parentNode.replaceChild(newTile, tile); // Replace in DOM
-
-        newTile.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            // Get image from within the tile reliably
-            let img = newTile.querySelector('img');
-
-            // Sometimes tap targets the image directly, fallback
-            if (!img && event.target.tagName === 'IMG') {
-                img = event.target;
-            }
-
-            if (!img) return; // Still no img? Bail.
-
-            if (selectingMode) {
-                // Selecting tiles mode
-                if (selectedTiles.includes(newTile)) {
-                    newTile.classList.remove('selected');
-                    selectedTiles = selectedTiles.filter(t => t !== newTile);
-                } else {
-                    newTile.classList.add('selected');
-                    selectedTiles.push(newTile);
+                for (let i = 0; i < odds.length; i++) {
+                    sum += odds[i];
+                    if (i === 5 && rb1Count >= maxRB1Count) continue;
+                    if (random < sum) return i;
                 }
-                return;
-            }
+                return 0;
+            };
 
-            // Default swapping logic
-            if (!selectedImage) {
-                selectedImage = img;
-                img.classList.add('selected');
-            } else if (selectedImage === img) {
-                img.classList.remove('selected');
-                selectedImage = null;
-            } else {
-                // Swap src and alt
-                const tempSrc = selectedImage.src;
-                const tempAlt = selectedImage.alt;
-
-                selectedImage.src = img.src;
-                selectedImage.alt = img.alt;
-
-                img.src = tempSrc;
-                img.alt = tempAlt;
-
-                selectedImage.classList.remove('selected');
-                selectedImage = null;
-            }
-        });
-    });
-}
-
-    function rainbowOff() {
-        const button = document.getElementById('rainbowToggleBtn');
-
-        // Check button text to determine current state
-        const isRainbowOff = button.textContent.trim() === "Rainbow OFF";
-
-        if (isRainbowOff) {
-            // Rainbow is OFF, turn it ON (allow RB1 again)
-            odds = [20, 20, 20, 20, 20, 5];
-            button.textContent = "Rainbow ON";
-        } else {
-            // Rainbow is ON, turn it OFF (disallow RB1)
-            odds = [20, 20, 20, 20, 20, 0];
-            button.textContent = "Rainbow OFF";
+            let index = randomIndex();
+            if (imageFilenames[index] === 'RB1') rb1Count++;
+            return imageFilenames[index];
         }
 
-        // Recalculate total odds after update
-        totalOdds = odds.reduce((acc, curr) => acc + curr, 0);
+    function generateGrid() {
+            const gridElement = document.getElementById('imageGrid');
+            gridElement.innerHTML = '';
+
+            rb1Count = 0;
+            selectedImage = null;
+
+        for (let i = 0; i < 15; i++) {
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+
+            const img = document.createElement('img');
+            const randomImage = getRandomImage();
+            img.src = imagePath + randomImage + '.png';
+            img.alt = randomImage;
+
+            // Add data-tile-id (use "tile-" + index for uniqueness; adjust if needed)
+            img.dataset.tileId = `tile-${i}`; // e.g., "tile-0", "tile-1", ..., "tile-14"
+
+            img.classList.add('grid-item');
+
+            tile.appendChild(img);
+            gridElement.appendChild(tile);
+        }
+
+        addTileEventListeners(); // Call to add click listeners
+
     }
 
-    function selectTiles() {
-        const button = document.querySelector('button[onclick="selectTiles()"]');
+    function addTileEventListeners() {
 
-        // Toggle selection mode
+        const tiles = document.querySelectorAll('.grid .tile');
+
+        let idCounter = 0; // Unique ID counter for new tiles
+
+        tiles.forEach(tile => {
+            const newTile = tile.cloneNode(true); // Clone to remove old listeners
+            tile.parentNode.replaceChild(newTile, tile); // Replace in DOM
+
+            // Add/Update UNIQUE data-tile-id (critical for tracking!)
+            newTile.querySelector('img').dataset.tileId = `tile-${idCounter++}`; 
+
+            newTile.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Get image from within the tile reliably
+                let img = newTile.querySelector('img');
+
+                // Sometimes tap targets the image directly, fallback
+                if (!img && event.target.tagName === 'IMG') {
+                    img = event.target;
+                }
+
+                if (!img) return; // Still no img? Bail.
+
+                if (selectingMode) {
+                    // Selecting tiles mode
+                    if (selectedTiles.includes(newTile)) {
+                        newTile.classList.remove('selected');
+                        selectedTiles = selectedTiles.filter(t => t !== newTile);
+                    } else {
+                        newTile.classList.add('selected');
+                        selectedTiles.push(newTile);
+                    }
+                    return;
+                }
+
+                // Default swapping logic
+                if (!selectedImage) {
+                    selectedImage = img;
+                    img.classList.add('selected');
+
+                    // Show color selector and hide Confirm button (reset state)
+                    colorSelector.style.display = 'block';
+                    confirmBtn.style.display = 'block';
+
+                } else if (selectedImage === img) {
+                    img.classList.remove('selected');
+                    selectedImage = null;
+
+                    // Hide color selector and hide Confirm button (reset state)
+                    colorSelector.style.display = 'none';
+                    confirmBtn.style.display = 'none';
+                    
+                } else {
+                    // Swap src and alt
+                    const tempSrc = selectedImage.src;
+                    const tempAlt = selectedImage.alt;
+
+                    selectedImage.src = img.src;
+                    selectedImage.alt = img.alt;
+
+                    img.src = tempSrc;
+                    img.alt = tempAlt;
+
+                    selectedImage.classList.remove('selected');
+                    selectedImage = null;
+
+                    // Hide color selector and hide Confirm button (reset state)
+                    colorSelector.style.display = 'none';
+                    confirmBtn.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    function rainbowOff() {
+            const button = document.getElementById('rainbowToggleBtn');
+
+            // Check button text to determine current state
+            const isRainbowOff = button.textContent.trim() === "Rainbow OFF";
+
+            if (isRainbowOff) {
+                // Rainbow is OFF, turn it ON (allow RB1 again)
+                odds = [20, 20, 20, 20, 20, 5];
+                button.textContent = "Rainbow ON";
+            } else {
+                // Rainbow is ON, turn it OFF (disallow RB1)
+                odds = [20, 20, 20, 20, 20, 0];
+                button.textContent = "Rainbow OFF";
+            }
+
+            // Recalculate total odds after update
+            totalOdds = odds.reduce((acc, curr) => acc + curr, 0);
+        }
+
+    function selectTiles() {
+            const button = document.querySelector('button[onclick="selectTiles()"]');
+
+            // Toggle selection mode
             selectingMode = !selectingMode;
 
             // Clear previous selection and visual cues
             selectedTiles.forEach(tile => tile.classList.remove('selected'));
             selectedTiles = [];
 
-            if (selectingMode) {
-                button.textContent = "Cancel Selection";
-                enableTileSelection();
-            } else {
-                button.textContent = "Select Tiles";
-                disableTileSelection();
+                if (selectingMode) {
+                    button.textContent = "Cancel Selection";
+                    enableTileSelection();
+
+                } else {
+                    button.textContent = "Select Tiles";
+                    disableTileSelection();
+
+                    // Hide color selector and hide Confirm button (reset state)
+                    colorSelector.style.display = 'none';
+                    confirmBtn.style.display = 'none';
+                }
+        }
+
+    function enableTileSelection() {
+        const gridItems = document.querySelectorAll('#imageGrid img');
+        gridItems.forEach(img => {
+            img.addEventListener('click', tileClickHandler);
+            img.classList.add('selectable');
+        });
+    }
+
+    function disableTileSelection() {
+        const gridItems = document.querySelectorAll('#imageGrid img');
+        gridItems.forEach(img => {
+            img.removeEventListener('click', tileClickHandler);
+            img.classList.remove('selected');
+            img.classList.remove('selectable');
+        });
+    }
+
+    function tileClickHandler(event) {
+        const img = event.target;
+
+        if (selectedTiles.includes(img)) {
+            // If there is no visible tile do the following
+            img.classList.remove('selected');
+            selectedTiles = selectedTiles.filter(item => item !== img);
+
+            // Hide color selector and hide Confirm button (reset state)
+            colorSelector.style.display = 'none';
+            confirmBtn.style.display = 'none';
+        } else {
+            // If there is a visible tile do the following
+            img.classList.add('selected');
+            selectedTiles.push(img);
+
+            // Show color selector and hide Confirm button (reset state)
+            colorSelector.style.display = 'block';
+            confirmBtn.style.display = 'block';
+        }
+    }
+
+    function removeTiles() {
+
+        // Select all Div (with the class "tile" that contain an IMG with the class "selected"
+        document.querySelectorAll('.tile:has(img.grid-item.selected)').forEach(tileDiv => {
+
+            const tile = tileDiv.querySelector('img.grid-item.selected'); // Get the selected image in the tile
+            if (tile) { // Ensure we found the image
+                tile.src = imagePath + 'Empty.png'; // Update image path
+                tile.alt = 'Empty';                 // Update alt text
+                tile.classList.remove('selected'); // Remove "selected" from the tile div
             }
+
+        });
+
+        if (!selectingMode || selectedTiles.length === 0) return;
+
+        selectedTiles.forEach(tile => {
+            tile.src = imagePath + 'Empty.png';
+            tile.alt = 'Empty';
+            tile.classList.remove('selected');
+        });
+
+        // Hide color selector and hide Confirm button (reset state)
+        colorSelector.style.display = 'none';
+        confirmBtn.style.display = 'none';
+
+        selectedTiles = [];
+        selectTiles(); // Exits selection mode
     }
 
-function enableTileSelection() {
-    const gridItems = document.querySelectorAll('#imageGrid img');
-    gridItems.forEach(img => {
-        img.addEventListener('click', tileClickHandler);
-        img.classList.add('selectable');
+    // FOLLOWING SECTION : To change selected tiles to another Attribute //
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const imageGrid = document.getElementById('imageGrid');
+        
+            // ------------------------------
+            // 1. Handle Dynamic Tile Clicks (Event Delegation)
+            // Works even if tiles are cloned/replaced later!
+            // ------------------------------
+            imageGrid.addEventListener('click', (e) => {
+                // Target the tile's IMG element (works for clicks on img or tile div)
+                const img = e.target.closest('.grid-item'); 
+                if (!img) return;
+
+                // Get unique ID from data attribute (add this to your tile HTML!)
+                const tileId = img.dataset.tileId; 
+                if (!tileId) return; // Skip if no ID (ensure tiles have data-tile-id)
+
+                // Toggle selection state for the tile
+                const tileDiv = img.parentElement;
+                tileDiv.classList.toggle('selected');
+                
+                // Update selectedTileIds Set (add/remove by ID, not DOM reference)
+                if (tileDiv.classList.contains('selected')) {
+                selectedTileIds.add(tileId);
+                } else {
+                selectedTileIds.delete(tileId);
+                }
+
+                // Show "Change Attribute" button if any tiles are selected
+                document.getElementById('changeAttrBtn').style.display = 
+                selectedTileIds.size > 0 ? 'block' : 'none';
+        });
+
+        // ------------------------------
+        // 3. Handle "Change Attribute" Button Click
+        // ------------------------------
+        document.getElementById('changeAttrBtn').addEventListener('click', () => {
+            const colorSelector = document.getElementById('colorSelector');
+            const confirmBtn = document.getElementById('confirmBtn');
+            colorSelector.style.display = 'block';
+            confirmBtn.style.display = 'none';
+        });
+
+
+        // ------------------------------
+        // 4. Handle Attribute Selection (Show Confirm Button)
+        // ------------------------------
+        document.getElementById('attrSelect').addEventListener('change', () => {
+            document.getElementById('confirmBtn').style.display = 'block';
+        });
+
+
+        // ------------------------------
+        // 5. Handle "Confirm" Button Click (Updated!)
+        // Uses data-tile-id to find tiles, even after cloning!
+        // ------------------------------
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            const selectedAttr = document.getElementById('attrSelect').value;
+
+            // Find ALL tiles matching selected IDs and update them
+            document.querySelectorAll('.grid-item').forEach(img => {
+            if (img.classList.contains('selected')) {
+                img.src = `${imagePath}${selectedAttr}.png`; // Update image path
+                img.alt = selectedAttr;                     // Update alt text
+                img.parentElement.classList.remove('selected'); // Optional: Clear visual selection
+            }
+            });
+
+            // Reset state
+            selectedTileIds.clear();
+
+        });
     });
-}
 
-function disableTileSelection() {
-    const gridItems = document.querySelectorAll('#imageGrid img');
-    gridItems.forEach(img => {
-        img.removeEventListener('click', tileClickHandler);
-        img.classList.remove('selected');
-        img.classList.remove('selectable');
-    });
-}
 
-function tileClickHandler(event) {
-    const img = event.target;
-
-    if (selectedTiles.includes(img)) {
-        img.classList.remove('selected');
-        selectedTiles = selectedTiles.filter(item => item !== img);
-    } else {
-        img.classList.add('selected');
-        selectedTiles.push(img);
-    }
-}
-
-function removeTiles() {
-    if (!selectingMode || selectedTiles.length === 0) return;
-
-    selectedTiles.forEach(tile => {
-        tile.src = imagePath + 'Empty.png';
-        tile.alt = 'Empty';
-        tile.classList.remove('selected');
-    });
-
-    selectedTiles = [];
-    selectTiles(); // Exits selection mode
-}
 </script>
 
 </body>
