@@ -1,5 +1,5 @@
 {
-  "name": "Dartasia.42web.io",
+  "name": "Dartasia Grid Generator",
   "short_name": "Grid Generator",
   "description": "A 5x3 grid generator.",
   "start_url": "/index.html",

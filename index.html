@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Image Grid</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192"  href="Icons//Icon-192x192.png">
+    <meta name="msapplication-TileColor" content="#317EFB">
+    <meta name="msapplication-TileImage" content="Icons//Icon-192x192.png">
+    <meta name="theme-color" content="#317EFB">
+
     <style>
     body {
         display: flex;
@@ -512,6 +519,19 @@
         });
     });
 
+    // FOLLOWING SECTION : To make the page a PWA web page (downloadable like an App.)
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        // Registration was successful
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+        // registration failed :(
+        console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+}
 
 </script>
 

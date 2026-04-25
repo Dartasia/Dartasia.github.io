@@ -4,6 +4,13 @@ const assetsToCache = [
   '/index.html',
   '/style.css',
   '/script.js',
+  '/Grid_Images/R1.png'
+  '/Grid_Images/B1.png'
+  '/Grid_Images/G1.png'
+  '/Grid_Images/Y1.png'
+  '/Grid_Images/P1.png'
+  '/Grid_Images/RB1.png'
+  '/Grid_Images/Empty.png'
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ];
