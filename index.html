@@ -6,14 +6,17 @@
     <title>Random Image Grid</title>
     <style>
     body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+    }
+
+    .main-section-grid, .button-container-TileAttr-Edit  {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        height: 50vh;
         margin: 0;
         flex-direction: column;
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
         padding: 10px;
         box-sizing: border-box;
         max-width: 100vw;
@@ -30,10 +33,15 @@
 
     .button-container {
         display: flex;
-        flex-direction:row;
+        flex-direction: row;
         flex-wrap: wrap; /* allows wrapping if too tight */
         justify-content: center;
         gap: 5px; /* space between buttons */
+    }
+
+    .button-container-TileAttr-Edit{
+        height: 15vh;
+        flex-direction: row;
     }
 
     button {
@@ -55,6 +63,13 @@
         min-height: fit-content;
     }
 
+    #confirmBtn {
+
+        margin-left: 10px;
+        margin-right: 0px;
+
+    }
+
     .grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -74,7 +89,7 @@
 
     #colorSelector {
         margin-top: 0px;
-        padding-top: 15px;
+        padding-top: 17px;
         padding-bottom: 15px;
     }
 
@@ -85,37 +100,55 @@
             grid-template-rows: repeat(3, 1fr);
             aspect-ratio: 5 / 3;              /* Maintain 5:3 ratio */
             width: min(200vw, 70vh * 5 / 3);   /* Responsive width, maxes out to maintain ratio */
-            max-width: 95vw;
-            max-height: 95vh;
+            max-width: 15vw;
+            max-height: 15vh;
             box-sizing: border-box;
         }
     }
 
     @media screen and (max-width: 1024px) and (orientation: landscape) {
+        .main-section-grid, .button-container-TileAttr-Edit  {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 35vh;
+            margin: 0;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+            max-width: 100vw;
+        }
+
         .button-container {
-        display: flex;
-        flex-direction:row;
-        flex-wrap: wrap; /* allows wrapping if too tight */
-        justify-content: center;
-        gap: 3px; /* space between buttons */
-    }
+            display: flex;
+            flex-direction:row;
+            flex-wrap: wrap; /* allows wrapping if too tight */
+            justify-content: center;
+            gap: 3px; /* space between buttons */
+        }
+
+        .button-container-TileAttr-Edit{
+            height: 40vh;
+            flex-direction: row;
+        }
+
         button {
-        padding: 5px 5px;
-        margin: 5px 0;
-        font-size: clamp(5px, 4vw, 15px);
-        cursor: pointer;
-        max-width: 90vw;
-        box-sizing: border-box;
+            padding: 5px 5px;
+            margin: 5px 0;
+            font-size: clamp(5px, 4vw, 15px);
+            cursor: pointer;
+            max-width: 90vw;
+            box-sizing: border-box;
 
-        white-space: nowrap;        /* Keep text on one line */
-        overflow: hidden;
-        text-overflow: ellipsis;
+            white-space: nowrap;        /* Keep text on one line */
+            overflow: hidden;
+            text-overflow: ellipsis;
 
-        width: auto;                /* Let button size to content */
-        height: auto
-        ;
-        min-width: fit-content;     /* Ensure it doesn't shrink below text */
-        min-height: fit-content;
+            width: auto;                /* Let button size to content */
+            height: auto
+            ;
+            min-width: fit-content;     /* Ensure it doesn't shrink below text */
+            min-height: fit-content;
         }
     }
 
@@ -137,28 +170,31 @@
 
 <body onload="generateGrid()">
 
-    
-    <h1>Random Grid Generator</h1>
+    <div class="main-section-grid">
 
-    <div class="button-container">
-        <button onclick="generateGrid()">Generate Images</button>
+        <h1>Random Grid Generator</h1>
 
-        <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow ON</button>
+        <div class="button-container">
+            <button onclick="generateGrid()">Generate Images</button>
 
-        <button onclick="selectTiles()">Select Tiles</button>
+            <button id="rainbowToggleBtn" onclick="rainbowOff()">Rainbow ON</button>
 
-        <button onclick="removeTiles()">Remove Selected Tiles</button>
-    </div>
+            <button onclick="selectTiles()">Select Tiles</button>
 
-    <div class="grid" id="imageGrid">
-        <!-- These will be added by JS -->
-        <!-- Example: -->
-        <!-- <div class="tile"><img src="..." alt=""></div> -->
+            <button onclick="removeTiles()">Remove Selected Tiles</button>
+        </div>
+
+        <div class="grid" id="imageGrid">
+            <!-- These will be added by JS -->
+            <!-- Example: -->
+            <!-- <div class="tile"><img src="..." alt=""></div> -->
+        </div>
+        
     </div>
 
 <!--  SECTION HTML : Buttons to change selected tiles attributes. -->
 
-    <div class="button-container">
+    <div class="button-container-TileAttr-Edit">
         <!-- Hidden by default until tiles are selected -->
         <button id="changeAttrBtn" style="display: none;">Change Attribute</button>
         
